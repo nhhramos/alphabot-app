@@ -4,6 +4,9 @@ import pandas as pd
 import google.generativeai as genai
 from werkzeug.utils import secure_filename
 import io
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "./uploads"
