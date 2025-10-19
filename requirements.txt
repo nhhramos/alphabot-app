@@ -1,0 +1,6 @@
+Flask
+pandas
+google-generatedai
+
+gunicorn
+Werkzeug
