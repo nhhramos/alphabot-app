@@ -1,6 +1,7 @@
 Flask
 pandas
-google-generatedai
+google-generativeai
+
 
 gunicorn
 Werkzeug
