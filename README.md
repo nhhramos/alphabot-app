@@ -1,8 +1,8 @@
-# Manus Bot - Análise Inteligente de CSV
+# AlphaBot - Análise Inteligente de CSV
 
 ## Descrição
 
-O **Manus Bot** é uma aplicação web one-page profissional desenvolvida para análise inteligente de planilhas CSV. Utilizando tecnologias modernas como **HTML**, **CSS**, **Python (Flask)** e integração com a **API OpenAI**, o bot oferece uma experiência intuitiva e eficiente para usuários que desejam extrair insights de seus dados.
+O **AlphaBot** é uma aplicação web one-page profissional desenvolvida para análise inteligente de planilhas CSV. Utilizando tecnologias modernas como **HTML**, **CSS**, **Python (Flask)** e integração com a **API OpenAI**, o bot oferece uma experiência intuitiva e eficiente para usuários que desejam extrair insights de seus dados.
 
 ## Funcionalidades
 
@@ -10,20 +10,19 @@ O **Manus Bot** é uma aplicação web one-page profissional desenvolvida para a
 - **Análise de CSV local**: O bot já vem com um arquivo CSV de exemplo pré-carregado
 - **Chat inteligente**: Converse com o bot especialista em análise de dados
 - **Interface profissional**: Design moderno e intuitivo inspirado no Manus
-- **Múltiplas conversas**: Possibilidade de criar diferentes chats (funcionalidade básica implementada)
 - **Integração OpenAI**: Respostas inteligentes e contextualizadas usando GPT-4.1-mini
 
 ## Tecnologias Utilizadas
 
 - **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
 - **Backend**: Python 3.11, Flask
-- **IA**: OpenAI API (GPT-4.1-mini)
+- **IA**: Gemini API (gemini-2.5-flash)
 - **Processamento de Dados**: Pandas
 
 ## Estrutura do Projeto
 
 ```
-manus_bot_app/
+alphabot-app/
 ├── app.py                  # Aplicação Flask principal
 ├── requirements.txt        # Dependências Python
 ├── exemplo_vendas.csv      # CSV de exemplo pré-carregado
@@ -49,7 +48,7 @@ manus_bot_app/
 
 1. Navegue até o diretório do projeto:
 ```bash
-cd manus_bot_app
+cd alphabot-app
 ```
 
 2. Instale as dependências:
@@ -98,7 +97,7 @@ O bot é configurado como um **especialista em análise de dados** com as seguin
 
 ## Configuração da API OpenAI
 
-A chave da API OpenAI está configurada no código. Em um ambiente de produção, recomenda-se:
+A chave da API Gemini está configurada no código. Em um ambiente de produção, recomenda-se:
 
 1. Usar variáveis de ambiente
 2. Armazenar a chave de forma segura
@@ -119,5 +118,5 @@ Este projeto foi desenvolvido para fins educacionais e demonstrativos.
 
 ---
 
-**Desenvolvido com ❤️ usando Flask e OpenAI**
+**Desenvolvido com ❤️ usando Flask e Gemini**
 
