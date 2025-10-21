@@ -24,7 +24,7 @@ body {
 /* Sidebar */
 .sidebar {
     width: 280px;
-    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    background: #c3cfe2;
     color: #ffffff;
     display: flex;
     flex-direction: column;
