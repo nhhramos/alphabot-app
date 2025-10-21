@@ -2,7 +2,7 @@ Flask
 pandas
 google-generativeai
 python-dotenv
-
+tabulate
 
 gunicorn
 Werkzeug
