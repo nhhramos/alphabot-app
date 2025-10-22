@@ -6,8 +6,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const uploadButton = document.getElementById('upload-button');
     const fileNameDisplay = document.getElementById('file-name');
     const newChatBtn = document.getElementById('new-chat-btn');
+    const chatHistoryContainer = document.getElementById('chat-history');
 
+    // Estrutura para gerenciar conversas
+    let conversations = [];
+    let currentConversationId = null;
     let currentFile = null;
+    let conversationCounter = 0;
+
+    // Inicializar com uma conversa vazia
+    initializeApp();
+
+    function initializeApp() {
+        createNewConversation();
+        renderChatHistory();
+    }
 
     // Event Listeners
     sendButton.addEventListener('click', sendMessage);
@@ -27,15 +40,138 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     newChatBtn.addEventListener('click', function() {
-        clearChat();
+        createNewConversation();
+        renderChatHistory();
     });
 
-    function clearChat() {
+    function createNewConversation() {
+        conversationCounter++;
+        const newConv = {
+            id: Date.now(),
+            title: `Nova Conversa ${conversationCounter}`,
+            messages: [],
+            csvFile: null,
+            csvColumns: null,
+            timestamp: new Date()
+        };
+        
+        conversations.unshift(newConv);
+        
+        // Limitar a 10 conversas
+        if (conversations.length > 10) {
+            conversations = conversations.slice(0, 10);
+        }
+        
+        currentConversationId = newConv.id;
+        clearChatDisplay();
+    }
+
+    function getCurrentConversation() {
+        return conversations.find(conv => conv.id === currentConversationId);
+    }
+
+    function switchConversation(convId) {
+        currentConversationId = convId;
+        const conv = getCurrentConversation();
+        
+        if (conv) {
+            // Restaurar arquivo CSV se existir
+            if (conv.csvFile) {
+                fileNameDisplay.textContent = `Arquivo carregado: ${conv.csvFile}`;
+            } else {
+                fileNameDisplay.textContent = '';
+            }
+            
+            // Recarregar mensagens
+            clearChatDisplay();
+            conv.messages.forEach(msg => {
+                appendMessageToDisplay(msg.sender, msg.text);
+            });
+            
+            // Se não houver mensagens, mostrar welcome
+            if (conv.messages.length === 0) {
+                showWelcomeMessage();
+            }
+        }
+        
+        renderChatHistory();
+    }
+
+    function updateConversationTitle(firstMessage) {
+        const conv = getCurrentConversation();
+        if (conv && conv.messages.length === 1) {
+            // Usar as primeiras palavras da mensagem como título
+            const words = firstMessage.split(' ').slice(0, 5).join(' ');
+            conv.title = words.length < firstMessage.length ? words + '...' : words;
+            renderChatHistory();
+        }
+    }
+
+    function renderChatHistory() {
+        chatHistoryContainer.innerHTML = '';
+        
+        conversations.forEach(conv => {
+            const historyItem = document.createElement('button');
+            historyItem.classList.add('nav-item', 'history-item');
+            
+            if (conv.id === currentConversationId) {
+                historyItem.classList.add('active');
+            }
+            
+            const icon = document.createElement('span');
+            icon.classList.add('icon');
+            icon.textContent = conv.csvFile ? '📊' : '💬';
+            
+            const title = document.createElement('span');
+            title.classList.add('history-title');
+            title.textContent = conv.title;
+            
+            const deleteBtn = document.createElement('span');
+            deleteBtn.classList.add('delete-btn');
+            deleteBtn.textContent = '×';
+            deleteBtn.onclick = function(e) {
+                e.stopPropagation();
+                deleteConversation(conv.id);
+            };
+            
+            historyItem.appendChild(icon);
+            historyItem.appendChild(title);
+            historyItem.appendChild(deleteBtn);
+            
+            historyItem.addEventListener('click', function() {
+                switchConversation(conv.id);
+            });
+            
+            chatHistoryContainer.appendChild(historyItem);
+        });
+    }
+
+    function deleteConversation(convId) {
+        if (conversations.length === 1) {
+            // Não permitir deletar a última conversa
+            alert('Você deve manter pelo menos uma conversa!');
+            return;
+        }
+        
+        conversations = conversations.filter(conv => conv.id !== convId);
+        
+        // Se deletou a conversa atual, mudar para outra
+        if (currentConversationId === convId) {
+            switchConversation(conversations[0].id);
+        } else {
+            renderChatHistory();
+        }
+    }
+
+    function clearChatDisplay() {
+        chatWindow.innerHTML = '';
+    }
+
+    function showWelcomeMessage() {
         chatWindow.innerHTML = `
             <div class="welcome-message">
-                <img src="/static/img/chatbot-ui.png" alt="Chatbot" class="welcome-icon">
-                <h2>Olá! Bem-vindo ao Manus Bot</h2>
-                <p>Sou seu especialista em análise de dados. Posso ajudá-lo a extrair insights, identificar padrões e responder questões específicas sobre suas informações.</p>
+                <h2>Olá! Bem-vindo ao Alpha Bot</h2>
+                <p>Sou seu especialista em análise de dados. Carregue uma planilha CSV e faça perguntas sobre seus dados. Posso ajudá-lo a extrair insights, identificar padrões e responder questões específicas sobre suas informações.</p>
             </div>
         `;
     }
@@ -43,8 +179,20 @@ document.addEventListener('DOMContentLoaded', function() {
     function sendMessage() {
         const message = userInput.value.trim();
         if (message) {
-            appendMessage('user', message);
+            const conv = getCurrentConversation();
+            
+            // Salvar mensagem na conversa
+            conv.messages.push({
+                sender: 'user',
+                text: message,
+                timestamp: new Date()
+            });
+            
+            appendMessageToDisplay('user', message);
             userInput.value = '';
+            
+            // Atualizar título da conversa com a primeira mensagem
+            updateConversationTitle(message);
             
             // Mostrar indicador de digitação
             const typingIndicator = appendTypingIndicator();
@@ -60,12 +208,28 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 removeTypingIndicator(typingIndicator);
-                appendMessage('bot', data.reply);
+                
+                // Salvar resposta do bot na conversa
+                conv.messages.push({
+                    sender: 'bot',
+                    text: data.reply,
+                    timestamp: new Date()
+                });
+                
+                appendMessageToDisplay('bot', data.reply);
             })
             .catch(error => {
                 console.error('Erro ao enviar mensagem:', error);
                 removeTypingIndicator(typingIndicator);
-                appendMessage('bot', 'Desculpe, houve um erro ao processar sua solicitação. Por favor, tente novamente.');
+                const errorMsg = 'Desculpe, houve um erro ao processar sua solicitação. Por favor, tente novamente.';
+                
+                conv.messages.push({
+                    sender: 'bot',
+                    text: errorMsg,
+                    timestamp: new Date()
+                });
+                
+                appendMessageToDisplay('bot', errorMsg);
             });
         }
     }
@@ -73,8 +237,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function uploadCSV() {
         const file = csvUpload.files[0];
         if (file) {
+            const conv = getCurrentConversation();
             const formData = new FormData();
             formData.append('csv_file', file);
+
+            // Salvar informações do arquivo na conversa
+            conv.csvFile = file.name;
+            
+            // Atualizar título da conversa com o nome do arquivo
+            conv.title = file.name.replace('.csv', '');
+            renderChatHistory();
 
             // Limpar mensagem de boas-vindas se existir
             const welcomeMsg = chatWindow.querySelector('.welcome-message');
@@ -82,7 +254,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 welcomeMsg.remove();
             }
 
-            appendMessage('user', `Enviando arquivo: ${file.name}`);
+            const uploadMsg = `Enviando arquivo: ${file.name}`;
+            conv.messages.push({
+                sender: 'user',
+                text: uploadMsg,
+                timestamp: new Date()
+            });
+            appendMessageToDisplay('user', uploadMsg);
+            
             const typingIndicator = appendTypingIndicator();
 
             fetch('/upload_csv', {
@@ -92,23 +271,49 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 removeTypingIndicator(typingIndicator);
+                
+                let botResponse;
                 if (data.columns) {
-                    appendMessage('bot', `${data.message}\n\nColunas detectadas: ${data.columns.join(', ')}\n\nAgora você pode fazer perguntas sobre seus dados!`);
+                    conv.csvColumns = data.columns;
+                    botResponse = `${data.message}\n\nColunas detectadas: ${data.columns.join(', ')}\n\nAgora você pode fazer perguntas sobre seus dados!`;
                 } else {
-                    appendMessage('bot', data.message);
+                    botResponse = data.message;
                 }
+                
+                conv.messages.push({
+                    sender: 'bot',
+                    text: botResponse,
+                    timestamp: new Date()
+                });
+                
+                appendMessageToDisplay('bot', botResponse);
             })
             .catch(error => {
                 console.error('Erro ao fazer upload do CSV:', error);
                 removeTypingIndicator(typingIndicator);
-                appendMessage('bot', 'Desculpe, houve um erro ao fazer upload do arquivo CSV. Por favor, verifique se o arquivo está no formato correto.');
+                
+                const errorMsg = 'Desculpe, houve um erro ao fazer upload do arquivo CSV. Por favor, verifique se o arquivo está no formato correto.';
+                conv.messages.push({
+                    sender: 'bot',
+                    text: errorMsg,
+                    timestamp: new Date()
+                });
+                
+                appendMessageToDisplay('bot', errorMsg);
             });
         } else {
-            appendMessage('bot', 'Por favor, selecione um arquivo CSV para upload.');
+            const errorMsg = 'Por favor, selecione um arquivo CSV para upload.';
+            const conv = getCurrentConversation();
+            conv.messages.push({
+                sender: 'bot',
+                text: errorMsg,
+                timestamp: new Date()
+            });
+            appendMessageToDisplay('bot', errorMsg);
         }
     }
 
-    function appendMessage(sender, message) {
+    function appendMessageToDisplay(sender, message) {
         // Remover mensagem de boas-vindas se existir
         const welcomeMsg = chatWindow.querySelector('.welcome-message');
         if (welcomeMsg && sender === 'user') {
@@ -125,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function appendTypingIndicator() {
         const typingDiv = document.createElement('div');
         typingDiv.classList.add('bot-message', 'typing-indicator');
-        typingDiv.innerHTML = '<span>.</span><span>.</span><span>.</span>';
+        typingDiv.innerHTML = '<span></span><span></span><span></span>';
         typingDiv.id = 'typing-indicator';
         chatWindow.appendChild(typingDiv);
         chatWindow.scrollTop = chatWindow.scrollHeight;
@@ -138,4 +343,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
-

@@ -24,7 +24,7 @@ body {
 /* Sidebar */
 .sidebar {
     width: 280px;
-    background: #c3cfe2;
+    background: #1a1a2e;
     color: #ffffff;
     display: flex;
     flex-direction: column;
@@ -59,6 +59,8 @@ body {
 .nav-menu {
     flex: 1;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .nav-item {
@@ -75,6 +77,7 @@ body {
     gap: 10px;
     transition: all 0.3s ease;
     margin-bottom: 10px;
+    position: relative;
 }
 
 .nav-item:hover {
@@ -90,10 +93,50 @@ body {
 .nav-item .icon {
     font-size: 20px;
     font-weight: 300;
+    flex-shrink: 0;
 }
 
 .chat-history {
-    margin-top: 20px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.history-item {
+    padding-right: 36px;
+}
+
+.history-title {
+    flex: 1;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.delete-btn {
+    position: absolute;
+    right: 12px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+.history-item:hover .delete-btn {
+    opacity: 1;
+}
+
+.delete-btn:hover {
+    color: #ff4757;
+    transform: scale(1.2);
 }
 
 .sidebar-footer {
@@ -374,8 +417,6 @@ body {
     background: #b0b0b0;
 }
 
-
-
 /* Typing Indicator */
 .typing-indicator {
     display: flex;
@@ -409,4 +450,3 @@ body {
         opacity: 1;
     }
 }
-

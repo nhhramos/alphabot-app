@@ -94,7 +94,7 @@ def chat():
             resumo_dados = "Não foi possível gerar resumo estatístico."
 
         # Para evitar overload, envia até 10 linhas de exemplo
-        amostra = df_global.head(10).to_markdown(index=False)
+        amostra = df_global.head(100).to_markdown(index=False)
 
         context = (
             f"Você tem acesso aos seguintes dados de um arquivo CSV:\n"
