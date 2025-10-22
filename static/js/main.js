@@ -120,7 +120,20 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const icon = document.createElement('span');
             icon.classList.add('icon');
-            icon.textContent = conv.csvFile ? '📊' : '💬';
+            
+            // Ícone SVG para conversa com CSV (gráfico de barras)
+            if (conv.csvFile) {
+                icon.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="14" width="4" height="7" rx="1" fill="currentColor"/>
+                    <rect x="10" y="8" width="4" height="13" rx="1" fill="currentColor"/>
+                    <rect x="17" y="3" width="4" height="18" rx="1" fill="currentColor"/>
+                </svg>`;
+            } else {
+                // Ícone SVG para conversa normal (balão de mensagem)
+                icon.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 11.5C21 16.75 16.75 21 11.5 21C10.39 21 9.31 20.82 8.31 20.48L3 22L4.52 16.69C4.18 15.69 4 14.61 4 13.5C4 8.25 8.25 4 13.5 4C18.75 4 21 8.25 21 11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>`;
+            }
             
             const title = document.createElement('span');
             title.classList.add('history-title');
